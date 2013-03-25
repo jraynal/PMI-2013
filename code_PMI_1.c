@@ -60,6 +60,8 @@
 volatile uint16_t RCMotD;
 volatile uint16_t RCMotG;
 volatile uint16_t RCser ;
+volatile uint8_t MavtD;
+volatile uint8_t MavtG;
 
 /****************************    Setup    ********************************/
 
@@ -67,15 +69,15 @@ uint8_t setup( void ){
 
   init_pins();
   init_motcc();
-
+  Departstrat();
   return 0;
 }
 
 /***************************     loop     ********************************/
 
 void loop( void ){
-  departStrat();
-
+  RCMotG = PWM_TIMER/1000;
+  RCMotD = PWM_TIMER/1000;
 }
 
 /***************************     Main     ********************************/
@@ -83,7 +85,6 @@ void loop( void ){
 void main( void ){
 
   setup();
-
   while(1){
     loop();
   }
@@ -100,7 +101,7 @@ ISR( TIMER0_OCR_vect ){
    *  Sens 1 à 1
    *  Sens 2 à 1
    **/
-  PORTC |= VM1 | SM11 | SM 12;
+  PORTC |= VM1 | SM11 | SM12;
 }
 
 ISR( TIMER0_OVF_vect ){
@@ -110,33 +111,51 @@ ISR( TIMER0_OVF_vect ){
    *  Sens 1 à 1 ou 0
    *  Sens 2 à 1 ou 0
    **/
-
   if (MavtD)
-    PORTC |= _BV(0);
+    PORTC &= ~SM11;
   else
-    PORTC |= _BV(1);
+    PORTC &= ~SM12;
 }
 
 ISR( TIMER2_OCR_vect ){
+  /**
+   *  On coupe tout:
+   *  Validation à 1
+   *  Sens 1 à 1
+   *  Sens 2 à 1
+   **/
+  PORTC  |= VM2 | SM21 | SM22;
 }
 
 ISR( TIMER2_OVF_vect ){
+  /**
+   *  On alimente dans le sens de marche
+   *  Validation 1
+   *  Sens 1 à 1 ou 0
+   *  Sens 2 à 1 ou 0
+   **/
+  if (MavtG)
+    PORTC &= ~SM21;
+  else
+    PORTC &= ~SM22;
 }
 
 uint8_t init_motcc( void ){
-
+  /*Initiation registre timer (TCCRX): 0100 0100*/
   /* Les moteurs ne doivent pas tourner */
   RCMotG = 0;
   RCMotD = 0;
 
   /* Moteur Gauche */
-  TCNT0 = PWM_TIMER;
   OCR0  = RCMotG ;
-
+  TCCR0 = 0x44;
   /* Moteur Droit  */
-  TCNT2 = PWM_TIMER;
   OCR2  = RCMotD ;
+  TCCR2 = 0x44 ;
 
+  /*Autorise les interuption des clocks*/
+  TIMSK |= 0xC3 ;
+  sei();
 }
 
 uint8_t init_pins( void ){
@@ -155,7 +174,6 @@ uint8_t init_pins( void ){
   /* Enable timer 1 overflow interrupt. */
   TIMSK = _BV (TOIE1);
   sei ();
-
 
 }
 
