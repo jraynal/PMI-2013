@@ -49,24 +49,24 @@
 
 /**************************** Declarations *******************************/
 
-#define VALID_MOTEUR_1       (1 << 2)
-#define SENS_MOTEUR_1_1      (1 << 0)
-#define SENS_MOTEUR_1_2      (1 << 1)
-#define VALID_MOTEUR_2       (1 << 7)
-#define SENS_MOTEUR_2_1      (1 << 5)
-#define SENS_MOTEUR_2_2      (1 << 6)
-#define PWM_TIMER            (F_CPU/16)
+#define VM1       (1 << 2)
+#define SM11      (1 << 0)
+#define SM12      (1 << 1)
+#define VM2       (1 << 7)
+#define SM21      (1 << 5)
+#define SM22      (1 << 6)
+#define PWM_TIMER            (F_CPU / 16 / 32) /*31 250 hz*/
 
-uint16_t RCMot;
-uint16_t RCser;
-/*Fixage de l'ovrflow*/
-OCR = 0;
+volatile uint16_t RCMotD;
+volatile uint16_t RCMotG;
+volatile uint16_t RCser ;
 
 /****************************    Setup    ********************************/
 
 uint8_t setup( void ){
 
   init_pins();
+  init_motcc();
 
   return 0;
 }
@@ -92,18 +92,51 @@ void main( void ){
 
 /* fonctions temporaires */
 
-/* Une Interruption toutes les 1ms */
+/* Interruption moteurs cc */
+ISR( TIMER0_OCR_vect ){
+  /**
+   *  On coupe tout:
+   *  Validation à 1
+   *  Sens 1 à 1
+   *  Sens 2 à 1
+   **/
+  PORTC |= VM1 | SM11 | SM 12;
+}
+
 ISR( TIMER0_OVF_vect ){
-  static uint8_t cpwm = 0;
-  if ( cpwm == 0 )
-    /*Mot & servo à 1*/;
-  if ( ( cpwm % 10 ) == RCMot )
-    /*Mot à 0*/;
-  if ( cpwm == RCSer )
-    /*Ser à 0*/;
-  if ( cpwm == /*overflow*/ /2 )
-    /*Mot à 1*/;
-  cpwm++;
+  /**
+   *  On alimente dans le sens de marche
+   *  Validation 1
+   *  Sens 1 à 1 ou 0
+   *  Sens 2 à 1 ou 0
+   **/
+
+  if (MavtD)
+    PORTC |= _BV(0);
+  else
+    PORTC |= _BV(1);
+}
+
+ISR( TIMER2_OCR_vect ){
+}
+
+ISR( TIMER2_OVF_vect ){
+}
+
+uint8_t init_motcc( void ){
+
+  /* Les moteurs ne doivent pas tourner */
+  RCMotG = 0;
+  RCMotD = 0;
+
+  /* Moteur Gauche */
+  TCNT0 = PWM_TIMER;
+  OCR0  = RCMotG ;
+
+  /* Moteur Droit  */
+  TCNT2 = PWM_TIMER;
+  OCR2  = RCMotD ;
+
 }
 
 uint8_t init_pins( void ){
