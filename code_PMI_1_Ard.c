@@ -70,18 +70,21 @@ volatile uint8_t MavtG;
 void init_motcc( void ){
   /*Initiation registre timer (TCCRX): 0100 0100*/
   /* Les moteurs ne doivent pas tourner */
-  RCMotG = 0;
-  RCMotD = 0;
+  RCMotG = PWM_TIMER*2;
+  RCMotD = PWM_TIMER*2;
 
   /* Moteur Gauche */
-  OCR0  = RCMotG ;
-  TCCR0 = 0x44;
+  OCR0A  = RCMotG ;
+  TCCR0A = 0x41;
+  TCCR0B = 0x0D;
   /* Moteur Droit  */
-  OCR2  = RCMotD ;
-  TCCR2 = 0x44 ;
+  OCR2A  = RCMotD ;
+  TCCR2A = 0x41 ;
+  TCCR2B = 0x0D ;
 
   /*Autorise les interuption des clocks*/
-  TIMSK |= 0xC3 ;
+  TIMSK0 |= 0x03 ;
+  TIMSK2 |= 0x03 ;
   sei();
 }
 
@@ -90,16 +93,15 @@ uint8_t init_pins( void ){
   DDRC  = 0xE7;
 
   /* Pins d'entrées des codeurs et autres capteur en Pull Up */
-  DDRD  = 0x0;
-  PORTD = 0x30;
-  DDRB  = 0x0;
-  PORTB = 0x0F;
-  sei ();
+  //  DDRD  = 0x0;
+  //PORTD = 0x30;
+  //DDRB  = 0x0;
+  //PORTB = 0x0F;
 }
 
 uint8_t departStrat( void ){
   /* Retrait de la tirette */
-  while( PINA && 1 << 0 ); 
+  /* while( PINA && 1 << 0 ); */
   return 1;
 }
 
@@ -117,8 +119,10 @@ uint8_t setup( void ){
 /***************************     loop     ********************************/
 
 void loop( void ){
-  RCMotG = PWM_TIMER/1000;
-  RCMotD = PWM_TIMER/1000;
+  RCMotG = PWM_TIMER * 2;
+  RCMotD = PWM_TIMER * 2;
+  MavtD=1;
+  MavtG=1;
 }
 
 /***************************     Main     ********************************/
@@ -136,7 +140,7 @@ int main( void ){
 /* fonctions temporaires */
 
 /* Interruption moteurs cc */
-ISR( TIMER0_COMP_vect ){
+ISR( TIMER0_COMPA_vect ){
   /**
    *  On coupe tout:
    *  Validation à 1
@@ -159,7 +163,7 @@ ISR( TIMER0_OVF_vect ){
     PORTC &= ~SM12;
 }
 
-ISR( TIMER2_COMP_vect ){
+ISR( TIMER2_COMPA_vect ){
   /**
    *  On coupe tout:
    *  Validation à 1
