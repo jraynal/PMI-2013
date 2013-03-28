@@ -27,18 +27,18 @@ volatile uint8_t MavtG;
 void init_motcc( void ){
   /*Initiation registre timer (TCCRX): 0100 0100*/
   /* Les moteurs ne doivent pas tourner */
-  RCMotG = CURSOR_PWM+10;
+  RCser = CURSOR_PWM+100;
 
   /* Moteur Gauche */
-  OCR0A  = RCMotG ;
-  TCNT0 = CURSOR_PWM;
+  OCR1A  = RCser ;
+  TCNT1 = CURSOR_PWM;
   /* Parmètre les clocks */
 
-  TCCR0A = 0x40;
-  TCCR0B = PRESCALER0;
+  TCCR1A = 0x00;
+  TCCR1B = PRESCALER0;
 
   /*Autorise les interuption des clocks*/
-  TIMSK0 = 0x03;
+  TIMSK1 = 0x03;
   sei();
 }
 
@@ -46,14 +46,11 @@ uint8_t init_pins( void ){
   /* Pins de validation et de sens des moteurs en Output High */
   DDRC  = SM11;
   PORTC = 0x05;
-
-  DDRC |= 1<<5;
 }
 
 void delay(int tick){
   int i;
   for (i = 0 ; i < tick ; i++);
-
 }
 
 /****************************    Setup    ********************************/
@@ -84,30 +81,20 @@ int main( void ){
 
 /*Interruption moteurs cc*/
 
-ISR( TIMER0_COMPA_vect ){
-  /**
-   *  On coupe tout:
-   *  Validation à 1
-   *  Sens 1 à 1
-   *  Sens 2 à 1
-   **/
+ISR( TIMER1_COMPA_vect ){
 
-  PORTC &= 0x00;
+  PORTC &= 1<<0;
+
 }
 
 
 
-ISR( TIMER0_OVF_vect ){
-  /**
-   *  On alimente dans le sens de marche
-   *  Validation 1
-   *  Sens 1 à 1 ou 0
-   *  Sens 2 à 1 ou 0
-   **/
-  TCCR0B = 0x00;
-  TCNT0 = CURSOR_PWM;
-  TCCR0B = PRESCALER0;
+ISR( TIMER1_OVF_vect ){
+  TCCR1B = 0x00;
 
+  TCNT1 = CURSOR_PWM;
   PORTC |= 1<<0;
+
+  TCCR1B = PRESCALER0;
 }
 

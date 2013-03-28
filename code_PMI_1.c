@@ -20,7 +20,7 @@
 /*************************************************************************/
 
 /************************** Dernière Modif *******************************/
-/*                    le 21/03/2013        18:40                         */
+/*                    le 28/03/2013        17:40                         */
 /*************************************************************************/
 
 
@@ -45,7 +45,7 @@
 #include <stdio.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/sleep.h>
+
 
 /**************************** Declarations *******************************/
 
@@ -56,7 +56,8 @@
 #define SM21      (1 << 5)
 #define SM22      (1 << 6)
 #define F_CPU     16000000
-#define PWM_TIMER            (F_CPU / 16 / 32) /*31 250 hz*/
+#define CURSOR_PWM 180
+#define PRESCALER 0x02
 
 volatile uint16_t RCMotD;
 volatile uint16_t RCMotG;
@@ -73,12 +74,16 @@ void init_motcc( void ){
   RCMotG = 0;
   RCMotD = 0;
 
+  /* On fixe le départ du compteur pour régler la fréquence*/
+  TCNT0 = CURSOR_PWM;
+  TCNT2 = CURSOR_PWM;
+
   /* Moteur Gauche */
-  OCR0  = RCMotG ;
-  TCCR0 = 0x44;
+  OCR0  = CURSOR_PWM+10 ;
+  TCCR0 = PRESCALER;
   /* Moteur Droit  */
-  OCR2  = RCMotD ;
-  TCCR2 = 0x44 ;
+  OCR2  = CURSOR_PWM+10 ;
+  TCCR2 = PRESCALER;
 
   /*Autorise les interuption des clocks*/
   TIMSK |= 0xC3 ;
@@ -94,12 +99,11 @@ uint8_t init_pins( void ){
   PORTD = 0x30;
   DDRB  = 0x0;
   PORTB = 0x0F;
-  sei ();
 }
 
 uint8_t departStrat( void ){
   /* Retrait de la tirette */
-  while( PINA && 1 << 0 ); 
+  //while( PINA && 1 << 0 ); 
   return 1;
 }
 
@@ -117,8 +121,8 @@ uint8_t setup( void ){
 /***************************     loop     ********************************/
 
 void loop( void ){
-  RCMotG = PWM_TIMER/1000;
-  RCMotD = PWM_TIMER/1000;
+  //RCMotG = PWM_TIMER/1000;
+  //RCMotD = PWM_TIMER/1000;
 }
 
 /***************************     Main     ********************************/
@@ -153,6 +157,9 @@ ISR( TIMER0_OVF_vect ){
    *  Sens 1 à 1 ou 0
    *  Sens 2 à 1 ou 0
    **/
+  TCCR0 = 0x00;
+  TCNT0 = CURSOR_PWM;
+  TCCR0 = PRESCALER;
   if (MavtD)
     PORTC &= ~SM11;
   else
@@ -176,6 +183,10 @@ ISR( TIMER2_OVF_vect ){
    *  Sens 1 à 1 ou 0
    *  Sens 2 à 1 ou 0
    **/
+
+  TCCR2 = 0x00;
+  TCNT2 = CURSOR_PWM;
+  TCCR2 = PRESCALER;
   if (MavtG)
     PORTC &= ~SM21;
   else
