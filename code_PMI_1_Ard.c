@@ -1,24 +1,3 @@
-///////////////////////////////////////////////////////////////////////////
-/*                                                                       */
-/*           #########          ##       ###             ####            */
-/*           ###     ##         ####    # ##              ##             */
-/*           ###     ##         ## ##  #  ##              ##             */
-/*           ########           ##   ##   ##              ##             */
-/*           ###                ##        ##              ##             */
-/*           ###                ##        ##              ##             */
-/*           ###         ##     ##        ##      ##     ####            */
-/*                                                                       */
-///////////////////////////////////////////////////////////////////////////
-
-
-/******************************  Auteurs  ********************************/
-/*                                                                       */
-/*                      JR -- petit coordinateur --                      */
-/*                                                                       */
-/*                                                                       */
-/*                                                                       */
-/*************************************************************************/
-
 /************************** Dernière Modif *******************************/
 /*                    le 21/03/2013        18:40                         */
 /*************************************************************************/
@@ -39,30 +18,34 @@
 /*            Strategie                                                  */
 /*                                                                       */
 /*************************************************************************/
-
+ 
 /****************************** Includes *********************************/
 
 #include <stdio.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include <avr/sleep.h>
+
 
 /**************************** Declarations *******************************/
 
-#define VM1       (1 << 2)
+#define VM1       (1 << 2)  /* PORTC */
 #define SM11      (1 << 0)
 #define SM12      (1 << 1)
 #define VM2       (1 << 7)
 #define SM21      (1 << 5)
 #define SM22      (1 << 6)
-#define F_CPU     16000000
-#define PWM_TIMER            (F_CPU / 16 / 32) /*31 250 hz*/
+#define SERVO1    (1 << 0)  /* PORTD */
+#define SERVO2    (1 << 1)
+#define SERVO3    (1 << 2)
+#define SERVO4    (1 << 3)
 
-volatile uint16_t RCMotD;
-volatile uint16_t RCMotG;
+#define F_CPU         16000000UL
+
+volatile uint8_t RCMotD;
+volatile uint8_t RCMotG;
 volatile uint16_t RCser ;
-volatile uint8_t MavtD;
-volatile uint8_t MavtG;
+volatile uint8_t  MavtD;
+volatile uint8_t  MavtG;
 
 
 /************************ fonctions temporaires **************************/
@@ -70,13 +53,14 @@ volatile uint8_t MavtG;
 void init_motcc( void ){
   /*Initiation registre timer (TCCRX): 0100 0100*/
   /* Les moteurs ne doivent pas tourner */
-  RCMotG = PWM_TIMER*2;
-  RCMotD = PWM_TIMER*2;
+  RCMotG = 0;
+  RCMotD = 0;
 
   /* Moteur Gauche */
   OCR0A  = RCMotG ;
   TCCR0A = 0x41;
   TCCR0B = 0x0D;
+
   /* Moteur Droit  */
   OCR2A  = RCMotD ;
   TCCR2A = 0x41 ;
