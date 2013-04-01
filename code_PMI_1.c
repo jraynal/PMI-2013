@@ -20,7 +20,7 @@
 /*************************************************************************/
 
 /************************** Dernière Modif *******************************/
-/*                    le 28/03/2013        17:40                         */
+/*                    le 30/03/2013        09:00                         */
 /*************************************************************************/
 
 
@@ -49,13 +49,20 @@
 
 /**************************** Declarations *******************************/
 
-#define VM1       (1 << 2)
+#define VM1       (1 << 2)  /* PORTC */
 #define SM11      (1 << 0)
 #define SM12      (1 << 1)
 #define VM2       (1 << 7)
 #define SM21      (1 << 5)
 #define SM22      (1 << 6)
-#define F_CPU     16000000
+#define MSK_MOTEURS (VM1 | VM2 | SM11 | SM12 | SM21 | SM22)
+
+#define SERVO1    (1 << 0)  /* PORTD */
+#define SERVO2    (1 << 1)
+#define SERVO3    (1 << 2)
+#define SERVO4    (1 << 3)
+#define MSK_SERVOS (SERVO1 | SERVO2 | SERVO3 | SERVO4)
+
 #define CURSOR_PWM 180
 #define PRESCALER 0x02
 
@@ -68,8 +75,7 @@ volatile uint8_t MavtG;
 
 /************************ fonctions temporaires **************************/
 
-void init_motcc( void ){
-  /*Initiation registre timer (TCCRX): 0100 0100*/
+void init_pwm( void ){
   /* Les moteurs ne doivent pas tourner */
   RCMotG = 0;
   RCMotD = 0;
@@ -92,10 +98,10 @@ void init_motcc( void ){
 
 uint8_t init_pins( void ){
   /* Pins de validation et de sens des moteurs en Output High */
-  DDRC  = 0xE7;
+  DDRC = MSK_MOTEURS;
+  DDRD = MSK_SERVOS;
 
   /* Pins d'entrées des codeurs et autres capteur en Pull Up */
-  DDRD  = 0x0;
   PORTD = 0x30;
   DDRB  = 0x0;
   PORTB = 0x0F;
@@ -111,9 +117,8 @@ uint8_t departStrat( void ){
 /****************************    Setup    ********************************/
 
 uint8_t setup( void ){
-
   init_pins();
-  init_motcc();
+  init_pwm();
   departStrat();
   return 0;
 }
@@ -121,8 +126,6 @@ uint8_t setup( void ){
 /***************************     loop     ********************************/
 
 void loop( void ){
-  //RCMotG = PWM_TIMER/1000;
-  //RCMotD = PWM_TIMER/1000;
 }
 
 /***************************     Main     ********************************/
@@ -135,9 +138,6 @@ int main( void ){
   }
   return 0;
 }
-
-
-/* fonctions temporaires */
 
 /* Interruption moteurs cc */
 ISR( TIMER0_COMP_vect ){
