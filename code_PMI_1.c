@@ -20,7 +20,7 @@
 /*************************************************************************/
 
 /************************** Dernière Modif *******************************/
-/*                    le 30/03/2013        09:00                         */
+/*                    le 02/04/2013        09:20                         */
 /*************************************************************************/
 
 
@@ -45,33 +45,7 @@
 #include <stdio.h>
 #include <avr/io.h>
 #include <avr/interrupt.h>
-
-
-/**************************** Declarations *******************************/
-
-#define VM1       (1 << 2)  /* PORTC */
-#define SM11      (1 << 0)
-#define SM12      (1 << 1)
-#define VM2       (1 << 7)
-#define SM21      (1 << 5)
-#define SM22      (1 << 6)
-#define MSK_MOTEURS (VM1 | VM2 | SM11 | SM12 | SM21 | SM22)
-
-#define SERVO1    (1 << 0)  /* PORTD */
-#define SERVO2    (1 << 1)
-#define SERVO3    (1 << 2)
-#define SERVO4    (1 << 3)
-#define MSK_SERVOS (SERVO1 | SERVO2 | SERVO3 | SERVO4)
-
-#define CURSOR_PWM 180
-#define PRESCALER 0x02
-
-volatile uint16_t RCMotD;
-volatile uint16_t RCMotG;
-volatile uint16_t RCser ;
-volatile uint8_t MavtD;
-volatile uint8_t MavtG;
-
+#include "gest_trajectoire.h"
 
 /************************ fonctions temporaires **************************/
 
@@ -83,6 +57,7 @@ void init_pwm( void ){
   /* On fixe le départ du compteur pour régler la fréquence*/
   TCNT0 = CURSOR_PWM;
   TCNT2 = CURSOR_PWM;
+  TCNT1 = CURSOR_SERVO;
 
   /* Moteur Gauche */
   OCR0  = CURSOR_PWM+10 ;
@@ -91,8 +66,11 @@ void init_pwm( void ){
   OCR2  = CURSOR_PWM+10 ;
   TCCR2 = PRESCALER;
 
+  /*Servos*/
+  TCCR1B = PRESCALER_SERVO;
+
   /*Autorise les interuption des clocks*/
-  TIMSK |= 0xC3 ;
+  TIMSK |= 0xCB ;
   sei();
 }
 
@@ -126,6 +104,10 @@ uint8_t setup( void ){
 /***************************     loop     ********************************/
 
 void loop( void ){
+  avance(20,AVANT);
+  avance(20,ARRIERE);
+  tourne(180,DROITE);
+  tourne(180,GAUCHE);
 }
 
 /***************************     Main     ********************************/
@@ -193,3 +175,21 @@ ISR( TIMER2_OVF_vect ){
     PORTC &= ~SM22;
 }
 
+ISR( TIMER1_OVF_vect ){
+  TCCR1B=0x00;
+  cpts++;
+
+  if ( cpts == pwm_bit_down )
+    PORTD &= ~SERVO1 & ~SERVO2 & ~SERVO3 & ~SERVO4;
+  if ( cpts == 200 ){
+    cpts = 0;
+    if (pwm_bit_down <= 20)
+      pwm_bit_down++;
+    else
+      pwm_bit_down = 0;
+    PORTD |= SERVO1 | SERVO2 | SERVO3 | SERVO4;
+  }
+
+  TCNT1 = CURSOR_SERVO;
+  TCCR1B=PRESCALER_SERVO;
+}
