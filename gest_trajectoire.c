@@ -84,7 +84,7 @@ struct trajectoire_{
 
 /*****************************  Position  ******************************/
 
-position *creer_position( x , y ){
+static position *creer_position( uint16_t x , uint16_t y ){
   positition bpos;
   bpos.x=x;
   bpos.y=y;
@@ -95,13 +95,13 @@ position *creer_position( x , y ){
 
 /*****************************  Objectif  ******************************/
 
-objectif *creer_objectif(){
+static objectif *creer_objectif(){
   objectif bobj;
   objectif *obj = &bobj;
   return obj;
 }
 
-objectif *ajouter_position( objectif *obj, positition *pos){
+static objectif *ajouter_position( objectif *obj, positition *pos){
   position * courant = obj->actuelle;
   if (obj->actuelle == NULL)
     obj->actuelle=pos;
@@ -116,17 +116,12 @@ objectif *ajouter_position( objectif *obj, positition *pos){
 
 /*****************************   Etapes   ******************************/
 
-etape *creer_etape( objectif *obj ){
+static etape *creer_etape( objectif *obj ){
   etape betp;
   betp.obj=obj;
   betp.suivante=NULL;
   etape *etp = &betp;
   return etp;
-}
-
-/* Facultatif, supprime une étape inutile si un évitement nous fait rapprocher de l'objectif */
-static void supprimer_etape( trajetoire t , etape e ){
-
 }
 
 /***************************** Trajectoire *******************************/
