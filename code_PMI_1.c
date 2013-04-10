@@ -47,6 +47,17 @@
 #include <avr/interrupt.h>
 #include "gest_trajectoire.h"
 
+/************************** Variables Globales ***************************/
+
+volatile uint16_t RCMotD;
+volatile uint16_t RCMotG;
+volatile uint16_t RCser ;
+volatile uint8_t MavtD;
+volatile uint8_t MavtG;
+volatile uint16_t cpts = 0;
+volatile uint16_t pwm_bit_down = 0;
+
+
 /************************ fonctions temporaires **************************/
 
 void init_pwm( void ){

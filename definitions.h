@@ -31,13 +31,13 @@
 #define VM 1        //vitesse moyenne en m.s⁻¹
 #define TP_180 5000 //temps pour un tour complet en ms
 
-volatile uint16_t RCMotD;
-volatile uint16_t RCMotG;
-volatile uint16_t RCser ;
-volatile uint8_t MavtD;
-volatile uint8_t MavtG;
-volatile uint16_t cpts = 0;
-volatile uint16_t pwm_bit_down = 0;
+extern volatile uint16_t RCMotD;
+extern volatile uint16_t RCMotG;
+extern volatile uint16_t RCser ;
+extern volatile uint8_t MavtD;
+extern volatile uint8_t MavtG;
+extern volatile uint16_t cpts = 0;
+extern volatile uint16_t pwm_bit_down = 0;
 
 typedef enum sens_ {
   AVANT=0,

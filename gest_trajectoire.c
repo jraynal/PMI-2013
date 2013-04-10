@@ -6,14 +6,18 @@ static uint8_t triangle_de_vitesse( uint16_t tps ){
   uint16_t demi = (tps / 2);
   /*Accélération*/
   while(( RCMotG == 255 ) || (j != demi)){
+    /* rajouter tempo */
     RCMotD = (RCMotG++);
     j++;
   }
   tps = tps - demi;
-  while( tps > j )
+  while( tps > j ){
+    /* rajouter tempo*/
     tps--;
+  }
   /*Décélération*/
   while((RCMotG == 0) || (j != 0)){
+    /* rajouter tempo */
     RCMotD = (RCMotG--);
     j--;
   }
@@ -44,7 +48,7 @@ char tourne( uint8_t angle , sens ss){
       MavtD = 0;
       MavtG = 1;
       break;
-  case(ARRIERE):
+  case(GAUCHE):
       MavtD = 1;
       MavtG = 0;
       break;
@@ -55,14 +59,21 @@ char tourne( uint8_t angle , sens ss){
   triangle_de_vitesse( tps );
   return 0;
 }
+
+/************************* Structures ***********************************/
+
 struct position_{
   uint16_t x;
-  uint16_t y;  
+  uint16_t y;
+  position *suivante;
+};
+
+struct ojectif_{
+  position *actuelle;
 };
 
 struct etape_{
-  position p1;
-  position p2;
+  objectif *obj;
   etape *suivante;
 };
 
@@ -71,24 +82,72 @@ struct trajectoire_{
   etape *dernière;
 };
 
+/*****************************  Position  ******************************/
+
+position *creer_position( x , y ){
+  positition bpos;
+  bpos.x=x;
+  bpos.y=y;
+  bpos.suivante=NULL;
+  positition *pos = &bpos;
+  return pos;
+}
+
+/*****************************  Objectif  ******************************/
+
+objectif *creer_objectif(){
+  objectif bobj;
+  objectif *obj = &bobj;
+  return obj;
+}
+
+objectif *ajouter_position( objectif *obj, positition *pos){
+  position * courant = obj->actuelle;
+  if (obj->actuelle == NULL)
+    obj->actuelle=pos;
+  else
+    {
+      while(courant->suivante != NULL)
+	courant = courant->suivante;
+      courant->suivante=pos;
+    }
+  return obj;
+}
+
+/*****************************   Etapes   ******************************/
+
+etape *creer_etape( objectif *obj ){
+  etape betp;
+  betp.obj=obj;
+  betp.suivante=NULL;
+  etape *etp = &betp;
+  return etp;
+}
+
+/* Facultatif, supprime une étape inutile si un évitement nous fait rapprocher de l'objectif */
+static void supprimer_etape( trajetoire t , etape e ){
+
+}
+
+/***************************** Trajectoire *******************************/
+/* Les étapes de la strat sont codées en dur, on ne rajoute que l'évitement */
+etape *ajouter_etape( trajectoire t , etape e ){
+  
+}
+
+
+/* charge en rélité la stratégie codée en elle*/
+trajectoire *charger_trajectoire( void ){
+
+}
+
+/*************************** Lancement **********************************/
+
 void lancer_etape( etape e ){
-
+  
 }
 
-void creer_etape( position p1 , position p2){
+void lancer_trajectoire( trajectoire tr){
 
 }
-
-void ajouter_etape( trajectoire t ){
-
-}
-
-void charger_trajectoire( void ){
-
-}
-
-static supprimer_etape( trajetoire t , etape e ){
-
-}
-
 
