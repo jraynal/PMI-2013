@@ -78,8 +78,8 @@ struct etape_{
 };
 
 struct trajectoire_{
-  etape *première;
-  etape *dernière;
+  etape *premiere;
+  etape *derniere;
 };
 
 /*****************************  Position  ******************************/
@@ -126,14 +126,49 @@ static etape *creer_etape( objectif *obj ){
 
 /***************************** Trajectoire *******************************/
 /* Les étapes de la strat sont codées en dur, on ne rajoute que l'évitement */
-etape *ajouter_etape( trajectoire t , etape e ){
-  
+void ajouter_etape( etape *prec , etape *e ){
+
 }
 
+#define C_ETAPE(n,x,y)							\
+  etape *e##n = creer_etape(ajouter_position(creer_objectif(),creer_position(x,y)));
 
 /* charge en rélité la stratégie codée en elle*/
 trajectoire *charger_trajectoire( void ){
+  trajectoire tr;
+  /* Creation des etapes */
+  C_ETAPE(0,0,0)
+  C_ETAPE(1,0,0)
+  C_ETAPE(2,0,0)
+  C_ETAPE(3,0,0)
+  C_ETAPE(4,0,0)
+  C_ETAPE(5,0,0)
+  C_ETAPE(6,0,0)
+  C_ETAPE(7,0,0)
+  C_ETAPE(8,0,0)
+  C_ETAPE(9,0,0)
+  C_ETAPE(10,0,0)
+  C_ETAPE(11,0,0)
+  
+  /* Initialisation de la trajectoire */
+  tr.premiere=e0;
+  tr.derniere=e11;
 
+  /* Ajout des étapes */
+  ajouter_etape(e0,e1);
+  ajouter_etape(e1,e2);
+  ajouter_etape(e2,e3);
+  ajouter_etape(e3,e4);
+  ajouter_etape(e4,e5);
+  ajouter_etape(e5,e6);
+  ajouter_etape(e6,e7);
+  ajouter_etape(e7,e8);
+  ajouter_etape(e8,e9);
+  ajouter_etape(e9,e10);
+  ajouter_etape(e10,e11);
+
+  trajectoire *ptr;
+  return ptr;
 }
 
 /*************************** Lancement **********************************/
