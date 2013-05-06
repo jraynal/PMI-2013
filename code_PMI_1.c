@@ -57,16 +57,20 @@ void setup( void ){
 
 /***************************     loop     ********************************/
 
-void loop( void ){
+void strategie( void ){
+  avance(10,AVANCE);
+  avance(10,RECULE);
 }
 
+void fin_strategie( void ){
+  while(1);
+}
 /***************************     Main     ********************************/
 
 int main( void ){
 
   setup();
-  while(1){
-    loop();
-  }
+  strategie();
+  fin_strategie();
   return 0;
 }
