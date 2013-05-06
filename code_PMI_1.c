@@ -41,8 +41,8 @@
 /*************************************************************************/
 
 /****************************** Includes *********************************/
-#include "couche_hardware.h"
-//#include "gest_trajectoire.h"
+//#include "couche_hardware.h"
+#include "gest_trajectoire.h"
 
 /************************** Variables Globales ***************************/
 

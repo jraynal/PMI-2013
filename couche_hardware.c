@@ -173,7 +173,7 @@ void timer2_disable(void){
 }
 
 
-void MOTEUR_A(uint8_t etat,uint8_t vitesse){
+void MOTEUR_A(sens etat,uint8_t vitesse){
   MavtG=ARRET;
   PORTC&=~(VM1|S11|S12);
   //VitG=((vitesse/(2.2*2*3.14))*19*2)/10+1;
@@ -190,12 +190,14 @@ void MOTEUR_A(uint8_t etat,uint8_t vitesse){
   case ARRET:
     PORTC&=~(VM1|S11|S12);
     break;		
+  default:
+    break;
   }
   MavtG=etat;
   ComptG=0;
 }
 
-void MOTEUR_B(uint8_t etat,uint8_t vitesse){
+void MOTEUR_B(sens etat,uint8_t vitesse){
   MavtD=ARRET;
   PORTC&=~(VM2|S21|S22);
   //VitD=((vitesse/(2.2*2*3.14))*19*2)/10+1;
@@ -211,6 +213,8 @@ void MOTEUR_B(uint8_t etat,uint8_t vitesse){
     break;
   case ARRET:
     PORTC&=~(VM2|S21|S22);
+    break;
+  default:
     break;
   }
   MavtD=etat;
@@ -228,8 +232,7 @@ void eteindre_pompe(void){
 char cote_jeu(void){
   if (PINA&(1<<CHOIX)){
     return ROUGE;
-  }
-  else{
+  } else {
     return BLEU;
   }
 }

@@ -1,13 +1,11 @@
 CC = avr-gcc
-CFLAGS = -mmcu=atmega32
-LDFLAGS = definitions.h couche_hardware.h 
-SRC = couche_hardware.c
+CFLAGS = -W -Wall -Wextra -mmcu=atmega32
+LDFLAGS = -lm
+SRC = couche_hardware.c gest_trajectoire.c
 OBJ = $(SRC:.c=.o)
 EXEC= main.elf
 
 all: $(EXEC) 
-gest_trajectoire.o: gest_trajectoire.c
-	avr-gcc  -c gest_trajectoire.c
 
 $(EXEC): code_PMI_1.c $(OBJ)
 	@echo "==================================================="
